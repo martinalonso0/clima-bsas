@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Clima Buenos Aires</title>
+
+    <meta name="description" content="Clima actual, pronostico 7 dias y radar de lluvia para Buenos Aires">
+    <meta name="theme-color" content="#1b2a4a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Clima BA">
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon.svg">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body { background-color: #1b2a4a; }
+        .install-banner {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(27, 42, 74, 0.95);
+            -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding: 16px 20px;
+            z-index: 9999;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .install-banner.visible { display: block; }
+        .install-btn {
+            background: #4CAF50; color: white; border: none;
+            padding: 10px 24px; border-radius: 25px;
+            font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; margin-left: 12px;
+        }
+        .install-close {
+            background: none; border: none; color: rgba(255,255,255,0.5);
+            font-size: 1.2rem; cursor: pointer;
+            position: absolute; top: 8px; right: 12px;
+        }
+        .ios-install-hint {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(27, 42, 74, 0.95);
+            -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding: 20px;
+            z-index: 9999;
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .ios-install-hint.visible { display: block; }
+        .ios-install-hint .close-hint {
+            background: none; border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 6px 18px; border-radius: 20px;
+            margin-top: 10px; cursor: pointer; font-size: 0.8rem;
+        }
+        @media (max-width: 750px) {
+            .card { padding: 25px 20px; }
+            .temp { font-size: 3.5rem; }
+        }
+        @supports(padding: env(safe-area-inset-bottom)) {
+            body { padding-bottom: calc(30px + env(safe-area-inset-bottom)); }
+        }
+    </style>
+</head>
+<body>
+    <div id="bg"></div>
+    <div id="bg-next"></div>
+    <div class="overlay"></div>
+
+    <h1>Buenos Aires, Argentina</h1>
+    <div class="clima-desc" id="clima-desc">Cargando clima...</div>
+    <div class="top-row">
+        <div class="card">
+            <div class="temp loading" id="temp">--°C</div>
+            <div class="sensacion" id="sensacion">Sensacion termica: --</div>
+            <div class="detalles">
+                <div class="detalle-item">
+                    <div class="valor" id="humedad">--%</div>
+                    <div class="label">Humedad</div>
+                </div>
+                <div class="detalle-item">
+                    <div class="valor" id="viento">-- km/h</div>
+                    <div class="label">Viento</div>
+                </div>
+            </div>
+            <div class="update" id="update">Cargando...</div>
+        </div>
+        <div class="outfit-section">
+            <div class="outfit-title">Vestimenta recomendada</div>
+            <div class="outfit-card">
+                <div id="outfit-svg"></div>
+                <div id="outfit-text" class="outfit-text">Cargando...</div>
+            </div>
+        </div>
+    </div>
+    <div class="forecast-section">
+        <div class="forecast-title">Pronostico 7 dias</div>
+        <div class="forecast" id="forecast"></div>
+    </div>
+
+    <div class="radar-section">
+        <div class="radar-title">Radar de precipitaciones</div>
+        <div id="rain-alert" class="rain-alert hidden"></div>
+        <div id="map"></div>
+    </div>
+
+    <div id="install-banner" class="install-banner">
+        <button class="install-close" id="install-close">&times;</button>
+        Instalar como app
+        <button class="install-btn" id="install-btn">Instalar</button>
+    </div>
+
+    <div id="ios-hint" class="ios-install-hint">
+        Para instalar como app:<br>
+        Toca <strong>Compartir</strong> (icono ↑) y luego<br>
+        <strong>"Agregar a pantalla de inicio"</strong>
+        <br>
+        <button class="close-hint" id="close-hint">Entendido</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+    <script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+    }
+
+    var deferredPrompt = null;
+    var $banner = document.getElementById("install-banner");
+    var $installBtn = document.getElementById("install-btn");
+    var $installClose = document.getElementById("install-close");
+    var $iosHint = document.getElementById("ios-hint");
+    var $closeHint = document.getElementById("close-hint");
+
+    window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        $banner.classList.add("visible");
+    });
+
+    $installBtn.addEventListener("click", function () {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function () {
+            deferredPrompt = null;
+            $banner.classList.remove("visible");
+        });
+    });
+
+    $installClose.addEventListener("click", function () {
+        $banner.classList.remove("visible");
+    });
+
+    var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    var isStandalone = window.navigator.standalone === true;
+    if (isIos && !isStandalone && !sessionStorage.getItem("iosHintDismissed")) {
+        $iosHint.classList.add("visible");
+    }
+
+    $closeHint.addEventListener("click", function () {
+        $iosHint.classList.remove("visible");
+        sessionStorage.setItem("iosHintDismissed", "1");
+    });
+
+    window.addEventListener("appinstalled", function () {
+        $banner.classList.remove("visible");
+    });
+    </script>
+</body>
+</html>

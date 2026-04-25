@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e90ff"/>
+      <stop offset="100%" stop-color="#0050a0"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#003366" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="250" fill="url(#sky)"/>
+  <g filter="url(#shadow)">
+    <g stroke="#ffe066" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.9">
+      <line x1="310" y1="135" x2="310" y2="100"/>
+      <line x1="380" y1="165" x2="405" y2="140"/>
+      <line x1="410" y1="235" x2="445" y2="235"/>
+      <line x1="380" y1="305" x2="405" y2="330"/>
+    </g>
+    <circle cx="310" cy="230" r="65" fill="#ffd633" opacity="0.95"/>
+    <circle cx="310" cy="230" r="50" fill="#ffe066"/>
+  </g>
+  <g filter="url(#shadow)">
+    <ellipse cx="230" cy="310" rx="120" ry="55" fill="white" opacity="0.95"/>
+    <circle cx="175" cy="280" r="55" fill="white" opacity="0.95"/>
+    <circle cx="240" cy="255" r="65" fill="white" opacity="0.95"/>
+    <circle cx="305" cy="280" r="50" fill="white" opacity="0.95"/>
+  </g>
+  <g transform="translate(120, 180)">
+    <rect x="0" y="0" width="16" height="90" rx="8" fill="white" opacity="0.9"/>
+    <circle cx="8" cy="100" r="16" fill="white" opacity="0.9"/>
+    <rect x="4" y="35" width="8" height="55" rx="4" fill="#ff4444"/>
+    <circle cx="8" cy="100" r="11" fill="#ff4444"/>
+    <rect x="18" y="15" width="8" height="2" rx="1" fill="white" opacity="0.7"/>
+    <rect x="18" y="30" width="8" height="2" rx="1" fill="white" opacity="0.7"/>
+    <rect x="18" y="45" width="8" height="2" rx="1" fill="white" opacity="0.7"/>
+    <rect x="18" y="60" width="8" height="2" rx="1" fill="white" opacity="0.7"/>
+    <rect x="18" y="75" width="8" height="2" rx="1" fill="white" opacity="0.7"/>
+  </g>
+</svg>
