@@ -1,12 +1,50 @@
 const API_URL = "https://api.open-meteo.com/v1/forecast?latitude=-34.6131&longitude=-58.3772&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America/Argentina/Buenos_Aires";
 
+function franjaHoraria() {
+    const h = new Date().getHours();
+    if (h >= 6 && h < 10) return "amanecer";
+    if (h >= 10 && h < 17) return "mediodia";
+    if (h >= 17 && h < 20) return "tarde";
+    return "noche";
+}
+
 const FONDOS = {
-    despejado: "https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1920&q=80",
-    nublado:   "https://images.unsplash.com/photo-1501630834273-4b5604d2ee31?w=1920&q=80",
-    niebla:    "https://images.unsplash.com/photo-1485236715568-ddc5ee6ca227?w=1920&q=80",
-    lluvia:    "https://images.unsplash.com/photo-1501691223387-dd0500403074?w=1920&q=80",
-    nieve:     "https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1920&q=80",
-    tormenta:  "https://images.unsplash.com/photo-1428592953211-077101b2021b?w=1920&q=80",
+    despejado: {
+        amanecer:  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80",
+        mediodia:  "https://images.unsplash.com/photo-1504386106331-3e4e71712b38?w=1920&q=80",
+        tarde:     "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=80",
+        noche:     "https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=80",
+    },
+    nublado: {
+        amanecer:  "https://images.unsplash.com/photo-1501908734255-16579c18c25f?w=1920&q=80",
+        mediodia:  "https://images.unsplash.com/photo-1501630834273-4b5604d2ee31?w=1920&q=80",
+        tarde:     "https://images.unsplash.com/photo-1515490480959-fac3e07ffa1c?w=1920&q=80",
+        noche:     "https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=1920&q=80",
+    },
+    niebla: {
+        amanecer:  "https://images.unsplash.com/photo-1487621167305-5d248087c724?w=1920&q=80",
+        mediodia:  "https://images.unsplash.com/photo-1485236715568-ddc5ee6ca227?w=1920&q=80",
+        tarde:     "https://images.unsplash.com/photo-1543968996-ee822b8176ba?w=1920&q=80",
+        noche:     "https://images.unsplash.com/photo-1510272839903-5765dfa1a78d?w=1920&q=80",
+    },
+    lluvia: {
+        amanecer:  "https://images.unsplash.com/photo-1438449805896-28a666819a20?w=1920&q=80",
+        mediodia:  "https://images.unsplash.com/photo-1501691223387-dd0500403074?w=1920&q=80",
+        tarde:     "https://images.unsplash.com/photo-1428592953211-077101b2021b?w=1920&q=80",
+        noche:     "https://images.unsplash.com/photo-1519692933481-e162a57d6721?w=1920&q=80",
+    },
+    nieve: {
+        amanecer:  "https://images.unsplash.com/photo-1457269449834-928af64c684d?w=1920&q=80",
+        mediodia:  "https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1920&q=80",
+        tarde:     "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1920&q=80",
+        noche:     "https://images.unsplash.com/photo-1548777123-e216912df7d8?w=1920&q=80",
+    },
+    tormenta: {
+        amanecer:  "https://images.unsplash.com/photo-1605727216801-e27ce1d0cc28?w=1920&q=80",
+        mediodia:  "https://images.unsplash.com/photo-1605727216801-e27ce1d0cc28?w=1920&q=80",
+        tarde:     "https://images.unsplash.com/photo-1428592953211-077101b2021b?w=1920&q=80",
+        noche:     "https://images.unsplash.com/photo-1472145246862-b24cf25c4a36?w=1920&q=80",
+    },
 };
 
 const WMO_CODES = {
@@ -108,7 +146,7 @@ async function actualizar() {
         const u = data.current_units;
         const weatherCode = c.weather_code;
         const info = WMO_CODES[weatherCode] || { fondo: "despejado", desc: `Codigo WMO: ${weatherCode}` };
-        cambiarFondo(FONDOS[info.fondo]);
+        cambiarFondo(FONDOS[info.fondo][franjaHoraria()]);
         $climaDesc.textContent = info.desc;
         $temp.textContent = `${c.temperature_2m}${u.temperature_2m}`;
         $temp.classList.remove("loading");
