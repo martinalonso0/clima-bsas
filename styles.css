@@ -1,18 +1,22 @@
 * { margin: 0; padding: 0; box-sizing: border-box; } /* Resetea márgenes y paddings de todos los elementos */
-body { /* Estilos del cuerpo de la página */
-    font-family: -apple-system, 'Segoe UI', Arial, sans-serif; /* Fuente principal y alternativas */
-    color: #fff; /* Color de texto blanco */
-    background-color: #1b2a4a; /* Fondo oscuro mientras cargan las imagenes */
-    min-height: 100vh; /* Ocupa al menos toda la altura de la ventana */
-    display: flex; /* Usa flexbox para centrar el contenido */
-    flex-direction: column; /* Apila los elementos en columna vertical */
-    align-items: center; /* Centra los elementos horizontalmente */
-    padding: 30px 15px; /* Espaciado interior arriba/abajo 30px, lados 15px */
-    transition: background 1s ease; /* Transición suave al cambiar el fondo */
+body {
+    font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+    color: #fff;
+    background-color: #1b2a4a;
+    min-height: 100vh;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: 30px 15px;
+    -webkit-transition: background 1s ease;
+    transition: background 1s ease;
 }
 #bg { /* Capa principal de la imagen de fondo */
     position: fixed; /* Se queda fija aunque hagas scroll */
-    inset: 0; /* Ocupa toda la pantalla (top, right, bottom, left = 0) */
+    top: 0; right: 0; bottom: 0; left: 0;
     z-index: -1; /* Se coloca detrás del contenido */
     background-size: cover; /* La imagen cubre toda la pantalla sin deformarse */
     background-position: center; /* Centra la imagen */
@@ -20,14 +24,14 @@ body { /* Estilos del cuerpo de la página */
 }
 #bg-next { /* Segunda capa de fondo para la transición cruzada */
     position: fixed; /* Fija en pantalla */
-    inset: 0; /* Ocupa toda la pantalla */
+    top: 0; right: 0; bottom: 0; left: 0;
     z-index: -2; /* Detrás de #bg */
     background-size: cover; /* La imagen cubre toda la pantalla */
     background-position: center; /* Centra la imagen */
 }
 .overlay { /* Capa oscura semi-transparente sobre la foto para mejorar legibilidad */
     position: fixed; /* Fija en pantalla */
-    inset: 0; /* Ocupa toda la pantalla */
+    top: 0; right: 0; bottom: 0; left: 0;
     z-index: -1; /* Detrás del contenido pero sobre el fondo */
     background: rgba(106, 135, 202, 0.45); /* Negro con 45% de opacidad */
 }
@@ -44,25 +48,31 @@ h1 { /* Estilo del título principal */
     text-shadow: 0 1px 4px rgba(0,0,0,0.5); /* Sombra de texto */
 }
 .top-row {
+    display: -webkit-flex;
     display: flex;
-    gap: 20px;
     max-width: 700px;
     width: 100%;
+    -webkit-align-items: stretch;
     align-items: stretch;
 }
+.top-row > *:first-child { margin-right: 20px; }
 .card {
     background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 20px;
     padding: 50px 45px 35px;
     text-align: center;
+    -webkit-flex: 1;
     flex: 1;
     min-width: 0;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
+    -webkit-justify-content: center;
     justify-content: center;
 }
 .temp {
@@ -73,11 +83,13 @@ h1 { /* Estilo del título principal */
     margin-top: 10px;
 }
 .sensacion { font-size: 1.1rem; opacity: 0.7; margin: 8px 0 25px; } /* Texto de sensación térmica, semi-transparente, con márgenes */
-.detalles { /* Contenedor de humedad y viento */
-    display: flex; /* Usa flexbox para poner los items en fila */
-    justify-content: space-around; /* Distribuye los items con espacio alrededor */
-    border-top: 1px solid rgba(255,255,255,0.15); /* Línea separadora superior */
-    padding-top: 20px; /* Espacio arriba de los detalles */
+.detalles {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-justify-content: space-around;
+    justify-content: space-around;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 20px;
 }
 .detalle-item { text-align: center; } /* Centra cada item de detalle */
 .detalle-item .valor { font-size: 1.3rem; font-weight: 600; } /* Valor numérico en negrita */
@@ -94,10 +106,13 @@ h1 { /* Estilo del título principal */
 }
 .forecast-title { font-size: 0.85rem; opacity: 0.6; margin-bottom: 8px; }
 .forecast {
+    display: -webkit-flex;
     display: flex;
-    gap: 8px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
+.forecast-day { margin-right: 8px; }
+.forecast-day:last-child { margin-right: 0; }
 .forecast-day {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(16px);
@@ -106,6 +121,7 @@ h1 { /* Estilo del título principal */
     border-radius: 14px;
     padding: 14px 10px;
     text-align: center;
+    -webkit-flex: 1;
     flex: 1;
     min-width: 72px;
 }
@@ -151,23 +167,31 @@ h1 { /* Estilo del título principal */
 @keyframes alertPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 .outfit-section {
     width: 240px;
+    -webkit-flex-shrink: 0;
     flex-shrink: 0;
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
 }
 .outfit-title { font-size: 0.85rem; opacity: 0.6; margin-bottom: 8px; }
 .outfit-card {
     background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 20px;
     padding: 20px 14px;
     text-align: center;
+    -webkit-flex: 1;
     flex: 1;
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
+    -webkit-align-items: center;
     align-items: center;
+    -webkit-justify-content: center;
     justify-content: center;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
@@ -176,8 +200,11 @@ h1 { /* Estilo del título principal */
     position: relative;
     width: 164px;
     height: 164px;
+    display: -webkit-flex;
     display: flex;
+    -webkit-align-items: center;
     align-items: center;
+    -webkit-justify-content: center;
     justify-content: center;
 }
 .char-img {
@@ -190,7 +217,7 @@ h1 { /* Estilo del título principal */
     position: absolute;
     font-size: 1.3rem;
     width: 34px; height: 34px;
-    display: flex; align-items: center; justify-content: center;
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;
     background: rgba(255,255,255,0.15);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border-radius: 50%;
@@ -227,7 +254,8 @@ h1 { /* Estilo del título principal */
     body { padding: 16px 10px; }
     h1 { font-size: 1.2rem; margin-bottom: 4px; }
     .clima-desc { font-size: 0.85rem; margin-bottom: 12px; }
-    .top-row { flex-direction: column; align-items: center; gap: 12px; }
+    .top-row { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center; }
+    .top-row > *:first-child { margin-right: 0; margin-bottom: 12px; }
     .card { padding: 40px 16px 18px; border-radius: 16px; }
     .temp { font-size: 3.2rem; }
     .sensacion { font-size: 0.95rem; margin: 4px 0 14px; }
@@ -237,13 +265,14 @@ h1 { /* Estilo del título principal */
     .update { margin-top: 10px; }
     .outfit-section { width: 100%; }
     .outfit-card {
+        -webkit-flex-direction: row;
         flex-direction: row;
         padding: 14px;
         border-radius: 16px;
-        gap: 14px;
+        -webkit-justify-content: flex-start;
         justify-content: flex-start;
     }
-    #outfit-svg { margin-bottom: 0; flex-shrink: 0; }
+    #outfit-svg { margin-bottom: 0; margin-right: 14px; -webkit-flex-shrink: 0; flex-shrink: 0; }
     .char-wrapper { width: 110px; height: 110px; }
     .char-img { width: 90px; height: 90px; }
     .char-acc { width: 26px; height: 26px; font-size: 1rem; }
@@ -251,8 +280,8 @@ h1 { /* Estilo del título principal */
     .outfit-nombre { font-size: 0.8rem; margin-bottom: 4px; }
     .outfit-item { margin: 1px 0; }
     .forecast-section { margin-top: 14px; }
-    .forecast { gap: 5px; }
-    .forecast-day { padding: 10px 6px; border-radius: 10px; min-width: 60px; }
+    .forecast-day { padding: 10px 6px; border-radius: 10px; min-width: 60px; margin-right: 5px; }
+    .forecast-day:last-child { margin-right: 0; }
     .forecast-day .dia { font-size: 0.65rem; margin-bottom: 4px; }
     .forecast-day .icono { font-size: 1.2rem; margin-bottom: 4px; }
     .forecast-day .temps { font-size: 0.75rem; }
@@ -264,8 +293,11 @@ h1 { /* Estilo del título principal */
 .clima-led {
     position: absolute;
     top: 10px; right: 12px;
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction: column;
     flex-direction: column;
+    -webkit-align-items: center;
     align-items: center;
     padding: 5px 10px;
     border-radius: 12px;
@@ -281,15 +313,18 @@ h1 { /* Estilo del título principal */
     margin-bottom: 3px;
 }
 .led-row {
+    display: -webkit-flex;
     display: flex;
+    -webkit-align-items: center;
     align-items: center;
-    gap: 5px;
 }
+.led-row > *:first-child { margin-right: 5px; }
 .led {
     width: 10px; height: 10px;
     border-radius: 50%;
     background: #888;
     box-shadow: 0 0 6px #888;
+    -webkit-flex-shrink: 0;
     flex-shrink: 0;
 }
 .led-label {
