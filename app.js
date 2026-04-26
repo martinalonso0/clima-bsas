@@ -141,6 +141,7 @@ const $rainAlert = document.getElementById("rain-alert");
 const $outfitSvg = document.getElementById("outfit-svg");
 const $outfitText = document.getElementById("outfit-text");
 const $titulo = document.querySelector("h1");
+const $climaLed = document.getElementById("clima-led");
 
 let fondoActual = "";
 
@@ -185,6 +186,38 @@ function cambiarFondo(url) {
     img.src = url;
 }
 
+function evaluarEstadoClima(weatherCode, viento, lluvia) {
+    const codMalo = [65, 67, 75, 77, 82, 86, 95, 96, 99];
+    const codRegular = [3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 66, 71, 73, 80, 81, 85];
+    if (codMalo.includes(weatherCode) || viento > 50 || lluvia >= 80) return "malo";
+    if (codRegular.includes(weatherCode) || viento > 30 || lluvia >= 50) return "regular";
+    return "bueno";
+}
+
+function motivoClima(weatherCode, viento) {
+    if ([95, 96, 99].includes(weatherCode)) return "Tormenta electrica";
+    if ([65, 67, 82].includes(weatherCode)) return "Lluvia intensa";
+    if ([61, 63, 66, 80, 81].includes(weatherCode)) return "Lluvia";
+    if ([51, 53, 55, 56, 57].includes(weatherCode)) return "Llovizna";
+    if ([75, 77, 86].includes(weatherCode)) return "Nevada intensa";
+    if ([71, 73, 85].includes(weatherCode)) return "Nevada";
+    if ([45, 48].includes(weatherCode)) return "Neblina";
+    if (viento > 50) return "Viento muy fuerte";
+    if (viento > 30) return "Viento fuerte";
+    if ([3].includes(weatherCode)) return "Nublado";
+    if ([2].includes(weatherCode)) return "Parcialmente nublado";
+    return "Despejado";
+}
+
+const ESTADO_LABELS = { bueno: "Buenas", regular: "Regulares", malo: "Malas" };
+
+function actualizarLed(weatherCode, viento, lluvia) {
+    const estado = evaluarEstadoClima(weatherCode, viento, lluvia);
+    $climaLed.className = "clima-led " + estado;
+    $climaLed.querySelector(".led-label").textContent = ESTADO_LABELS[estado];
+    $climaLed.querySelector(".led-motivo").textContent = motivoClima(weatherCode, viento);
+}
+
 async function actualizar() {
     try {
         const resp = await fetch(buildApiUrl(userLat, userLon));
@@ -201,6 +234,7 @@ async function actualizar() {
         $humedad.textContent = `${c.relative_humidity_2m}${u.relative_humidity_2m}`;
         $viento.textContent = `${c.wind_speed_10m} ${u.wind_speed_10m}`;
         $update.textContent = `Ultima actualizacion: ${hora()}`;
+        actualizarLed(weatherCode, c.wind_speed_10m, data.daily.precipitation_probability_max[0]);
         renderForecast(data.daily);
         actualizarAlarma(data.daily);
         actualizarVestimenta(c.apparent_temperature, weatherCode, data.daily.precipitation_probability_max[0]);
