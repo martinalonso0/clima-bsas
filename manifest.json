@@ -9,14 +9,9 @@
     "orientation": "portrait",
     "icons": [
         {
-            "src": "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_goofy_character_sq_l?wid=192&hei=192",
-            "sizes": "192x192",
-            "type": "image/jpeg"
-        },
-        {
-            "src": "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_goofy_character_sq_l?wid=512&hei=512",
-            "sizes": "512x512",
-            "type": "image/jpeg"
+            "src": "https://media.giphy.com/media/2wKbtCMHTVoOY/200_s.gif",
+            "sizes": "200x200",
+            "type": "image/gif"
         }
     ]
 }
