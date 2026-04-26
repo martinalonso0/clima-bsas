@@ -314,6 +314,8 @@ function inicializarMapa(lat, lon) {
     setTimeout(() => map.invalidateSize(), 500);
 }
 
+const TOMORROW_KEY = "rlXsAT9EzDzmmEmC9lgjiASTYphSWlLz";
+
 async function actualizarCapasClima() {
     if (!map) return;
 
@@ -331,25 +333,24 @@ async function actualizarCapasClima() {
     }
 
     try {
-        const owmBase = "https://tile.openweathermap.org/map";
-        const owmKey = "9de243494c0b295cca9337e1e96b00e2";
+        const tBase = "https://api.tomorrow.io/v4/map/tile/{z}/{x}/{y}";
 
         if (tempLayer) map.removeLayer(tempLayer);
-        tempLayer = L.tileLayer(`${owmBase}/temp_new/{z}/{x}/{y}.png?appid=${owmKey}`, {
-            opacity: 0.3, maxZoom: 12
+        tempLayer = L.tileLayer(`${tBase}/temperature/now.png?apikey=${TOMORROW_KEY}`, {
+            opacity: 0.35, maxZoom: 12
         }).addTo(map);
 
         if (cloudsLayer) map.removeLayer(cloudsLayer);
-        cloudsLayer = L.tileLayer(`${owmBase}/clouds_new/{z}/{x}/{y}.png?appid=${owmKey}`, {
+        cloudsLayer = L.tileLayer(`${tBase}/cloudCover/now.png?apikey=${TOMORROW_KEY}`, {
             opacity: 0.25, maxZoom: 12
         }).addTo(map);
 
         if (precipLayer) map.removeLayer(precipLayer);
-        precipLayer = L.tileLayer(`${owmBase}/precipitation_new/{z}/{x}/{y}.png?appid=${owmKey}`, {
-            opacity: 0.4, maxZoom: 12
+        precipLayer = L.tileLayer(`${tBase}/precipitationIntensity/now.png?apikey=${TOMORROW_KEY}`, {
+            opacity: 0.45, maxZoom: 12
         }).addTo(map);
     } catch (e) {
-        console.error("Error capas OWM:", e.message);
+        console.error("Error capas Tomorrow.io:", e.message);
     }
 }
 
