@@ -1,4 +1,4 @@
-var CACHE_NAME = "clima-ba-v2";
+var CACHE_NAME = "clima-ba-v3";
 var URLS_TO_CACHE = [
     "./index.html",
     "./styles.css",
