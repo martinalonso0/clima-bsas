@@ -211,16 +211,16 @@ async function actualizar() {
 
 // --- Personajes Disney ---
 const PERSONAJES = [
-    { nombre: "Mickey", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_mickey_mouse_character_sq_l", anim: "bounce" },
-    { nombre: "Minnie", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_minnie_mouse_character_sq_l", anim: "sway" },
-    { nombre: "Donald", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_donald_duck_character_sq_l", anim: "waddle" },
-    { nombre: "Pluto", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_pluto_character_sq_l", anim: "wag" },
-    { nombre: "Goofy", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_goofy_character_sq_l", anim: "trip" },
-    { nombre: "Stitch", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_stitch_character_sq_l", anim: "bounce" },
-    { nombre: "Simba", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_simba_character_sq_l", anim: "sway" },
-    { nombre: "Olaf", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_olaf_character_sq_l", anim: "waddle" },
-    { nombre: "Dumbo", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_dumbo_character_sq_l", anim: "float" },
-    { nombre: "Winnie Pooh", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_winnie-the-pooh_character_sq_l", anim: "trip" },
+    { nombre: "Mickey", img: "https://media.giphy.com/media/8TT8VjZTZGWQw/200.gif" },
+    { nombre: "Minnie", img: "https://media.giphy.com/media/ZMhyP2RWEddvO/200.gif" },
+    { nombre: "Donald", img: "https://media.giphy.com/media/Lk4ESQ9fL1vy/200.gif" },
+    { nombre: "Pluto", img: "https://media.giphy.com/media/GJMHX9xmcmtdzOHAkC/200.gif" },
+    { nombre: "Goofy", img: "https://media.giphy.com/media/2wKbtCMHTVoOY/200.gif" },
+    { nombre: "Stitch", img: "https://media.giphy.com/media/QbH09i4iU87kc/200.gif" },
+    { nombre: "Simba", img: "https://media.giphy.com/media/Ms2YW90Qnyv4I/200.gif" },
+    { nombre: "Olaf", img: "https://media.giphy.com/media/VHR9gfoyZnx0A/200.gif" },
+    { nombre: "Dumbo", img: "https://media.giphy.com/media/2lzhUOZsRY86Y/200.gif" },
+    { nombre: "Winnie Pooh", img: "https://media.giphy.com/media/wxgimHAKx2xA4/200.gif" },
 ];
 
 function personajeDelDia() {
@@ -264,7 +264,7 @@ function actualizarVestimenta(temp, weatherCode, lluvia) {
     const accs = iconos.slice(0, ACC_POS.length).map((ic, i) =>
         `<span class="char-acc ${ACC_POS[i]}" style="animation-delay:${i * 0.08}s">${ic}</span>`
     ).join("");
-    $outfitSvg.innerHTML = `<div class="char-wrapper"><img src="${personaje.img}" alt="${personaje.nombre}" class="char-img char-anim-${personaje.anim}">${accs}</div>`;
+    $outfitSvg.innerHTML = `<div class="char-wrapper"><img src="${personaje.img}" alt="${personaje.nombre}" class="char-img">${accs}</div>`;
     $outfitText.innerHTML = `<div class="outfit-nombre">${personaje.nombre} recomienda:</div>` +
         prendas.map(p => `<div class="outfit-item">&bull; ${p}</div>`).join("");
 }
