@@ -1,5 +1,49 @@
-const API_URL = "https://api.open-meteo.com/v1/forecast?latitude=-34.6131&longitude=-58.3772&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America/Argentina/Buenos_Aires";
+// --- Ubicacion: GPS o fallback Buenos Aires ---
+const DEFAULT_LAT = -34.6131;
+const DEFAULT_LON = -58.3772;
+const DEFAULT_CIUDAD = "Buenos Aires, Argentina";
 
+let userLat = DEFAULT_LAT;
+let userLon = DEFAULT_LON;
+let userCiudad = DEFAULT_CIUDAD;
+let gpsObtenido = false;
+
+function buildApiUrl(lat, lon) {
+    return `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
+}
+
+function obtenerUbicacion() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) { resolve(false); return; }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                userLat = pos.coords.latitude;
+                userLon = pos.coords.longitude;
+                gpsObtenido = true;
+                resolve(true);
+            },
+            () => { resolve(false); },
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+        );
+    });
+}
+
+async function obtenerCiudad(lat, lon) {
+    try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=es`);
+        const data = await resp.json();
+        const addr = data.address;
+        const ciudad = addr.city || addr.town || addr.village || addr.municipality || "";
+        const prov = addr.state || "";
+        if (ciudad && prov) return `${ciudad}, ${prov}`;
+        if (ciudad) return ciudad;
+        return data.display_name.split(",").slice(0, 2).join(",");
+    } catch (e) {
+        return DEFAULT_CIUDAD;
+    }
+}
+
+// --- Hora local del dispositivo ---
 function franjaHoraria() {
     const h = new Date().getHours();
     if (h >= 6 && h < 10) return "amanecer";
@@ -8,6 +52,11 @@ function franjaHoraria() {
     return "noche";
 }
 
+function hora() {
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+// --- Fondos segun clima + hora ---
 const FONDOS = {
     despejado: {
         amanecer:  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80",
@@ -78,6 +127,7 @@ const WMO_CODES = {
     99: { fondo: "tormenta",  desc: "Tormenta con granizo fuerte" },
 };
 
+// --- DOM ---
 const $bg = document.getElementById("bg");
 const $bgNext = document.getElementById("bg-next");
 const $temp = document.getElementById("temp");
@@ -90,12 +140,9 @@ const $forecast = document.getElementById("forecast");
 const $rainAlert = document.getElementById("rain-alert");
 const $outfitSvg = document.getElementById("outfit-svg");
 const $outfitText = document.getElementById("outfit-text");
+const $titulo = document.querySelector("h1");
 
 let fondoActual = "";
-
-function hora() {
-    return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-}
 
 const WMO_ICONOS = {
     0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
@@ -140,7 +187,7 @@ function cambiarFondo(url) {
 
 async function actualizar() {
     try {
-        const resp = await fetch(API_URL);
+        const resp = await fetch(buildApiUrl(userLat, userLon));
         const data = await resp.json();
         const c = data.current;
         const u = data.current_units;
@@ -162,6 +209,7 @@ async function actualizar() {
     }
 }
 
+// --- Personajes Disney ---
 const PERSONAJES = [
     { nombre: "Mickey", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_mickey_mouse_character_sq_l", anim: "bounce" },
     { nombre: "Minnie", img: "https://cdn.s7.shopdisney.eu/is/image/ShopDisneyEMEA/33631_minnie_mouse_character_sq_l", anim: "sway" },
@@ -243,30 +291,86 @@ function actualizarAlarma(daily) {
     }
 }
 
-const map = L.map("map", { zoomControl: false, maxZoom: 12, minZoom: 3 }).setView([-34.6131, -58.3772], 8);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-    maxZoom: 12
-}).addTo(map);
-setTimeout(() => map.invalidateSize(), 500);
-
+// --- Mapa meteorologico ---
+let map = null;
 let radarLayer = null;
+let tempLayer = null;
+let cloudsLayer = null;
+let precipLayer = null;
+let userMarker = null;
 
-async function actualizarRadar() {
+function inicializarMapa(lat, lon) {
+    map = L.map("map", { zoomControl: true, maxZoom: 12, minZoom: 3 }).setView([lat, lon], 8);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+        maxZoom: 12
+    }).addTo(map);
+
+    userMarker = L.marker([lat, lon]).addTo(map)
+        .bindPopup(gpsObtenido ? userCiudad : DEFAULT_CIUDAD)
+        .openPopup();
+
+    setTimeout(() => map.invalidateSize(), 500);
+}
+
+async function actualizarCapasClima() {
+    if (!map) return;
+
     try {
         const resp = await fetch("https://api.rainviewer.com/public/weather-maps.json");
         const data = await resp.json();
         const last = data.radar.past[data.radar.past.length - 1];
+
         if (radarLayer) map.removeLayer(radarLayer);
         radarLayer = L.tileLayer(data.host + last.path + "/512/{z}/{x}/{y}/4/1_1.png", {
             opacity: 0.6, tileSize: 512, zoomOffset: -1
         }).addTo(map);
     } catch (e) {
-        console.error("Error radar:", e.message);
+        console.error("Error radar RainViewer:", e.message);
+    }
+
+    try {
+        const owmBase = "https://tile.openweathermap.org/map";
+        const owmKey = "9de243494c0b295cca9337e1e96b00e2";
+
+        if (tempLayer) map.removeLayer(tempLayer);
+        tempLayer = L.tileLayer(`${owmBase}/temp_new/{z}/{x}/{y}.png?appid=${owmKey}`, {
+            opacity: 0.3, maxZoom: 12
+        }).addTo(map);
+
+        if (cloudsLayer) map.removeLayer(cloudsLayer);
+        cloudsLayer = L.tileLayer(`${owmBase}/clouds_new/{z}/{x}/{y}.png?appid=${owmKey}`, {
+            opacity: 0.25, maxZoom: 12
+        }).addTo(map);
+
+        if (precipLayer) map.removeLayer(precipLayer);
+        precipLayer = L.tileLayer(`${owmBase}/precipitation_new/{z}/{x}/{y}.png?appid=${owmKey}`, {
+            opacity: 0.4, maxZoom: 12
+        }).addTo(map);
+    } catch (e) {
+        console.error("Error capas OWM:", e.message);
     }
 }
 
-actualizarRadar();
-setInterval(actualizarRadar, 300000);
-actualizar();
-setInterval(actualizar, 60000);
+// --- Inicio ---
+async function iniciar() {
+    $climaDesc.textContent = "Obteniendo ubicacion...";
+
+    const gps = await obtenerUbicacion();
+
+    if (gps) {
+        userCiudad = await obtenerCiudad(userLat, userLon);
+    }
+
+    $titulo.textContent = userCiudad;
+
+    inicializarMapa(userLat, userLon);
+    actualizarCapasClima();
+    setInterval(actualizarCapasClima, 300000);
+
+    actualizar();
+    setInterval(actualizar, 60000);
+}
+
+iniciar();
