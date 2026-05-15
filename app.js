@@ -1,3 +1,4 @@
+// Requiere revisión humana antes de publicarse
 // --- Ubicacion: GPS o fallback Buenos Aires ---
 const DEFAULT_LAT = -34.6131;
 const DEFAULT_LON = -58.3772;
@@ -348,7 +349,7 @@ function inicializarMapa(lat, lon) {
     setTimeout(() => map.invalidateSize(), 500);
 }
 
-const TOMORROW_KEY = "rlXsAT9EzDzmmEmC9lgjiASTYphSWlLz";
+// TOMORROW_KEY se carga desde config.js
 
 async function actualizarCapasClima() {
     if (!map) return;
